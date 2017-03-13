@@ -75,36 +75,54 @@
               center: {lat: 53.4129, lng: 8.2439},
               zoom: 3
             });
+		
+		if ({{my_data |safe}}) {
 
 
-            if ({{my_data |safe}}) {
+			var data_from_django = {{ my_data |safe }};
+			//alert(data_from_django.mytweets.length)
+			total_tweets = data_from_django.mytweets;
+			var data = [];
 
+			//alert(total_tweets.length);
 
-                var data_from_django = {{ my_data |safe }};
-                //alert(data_from_django.mytweets.length)
-                total_tweets = data_from_django.mytweets;
-                //alert(total_tweets.length);
-                if(total_tweets.length == 0)
-                {
-                    alert("No Tweets Found");
-                }
-                else
-                {
-                    for (var i = 0; i < total_tweets.length; i++) {
-                        var res = total_tweets[i];
-                        //alert(res._source.lat)
-                        new google.maps.Marker({
-                            position:{
-                                lat:res._source.lat,
-                                lng:res._source.lng
-                            },
-                            map: map
-                        //icon: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAMAAAC67D+PAAAAA1BMVEVoqy3pkp4VAAAADElEQVQImWNgoCcAAABuAAEdQFfVAAAAAElFTkSuQmCC"
-                         });
-                    }
-                }
-             }
-            }
+			if(total_tweets.length == 0)
+			{
+			    alert("No Tweets Found");
+			}
+
+			else{
+			    for (var i = 0; i < total_tweets.length; i++) {
+				    var res = total_tweets[i];
+
+				    data[i] = "<strong>Tweet:</strong><br>" +
+					res._source.message + "<br><strong>Author:</strong><br>" + res._source.author +
+					"<br><strong>Location:</strong><br>" + res._source.location +
+					"<br><strong>Tweet Creation Timestamp:</strong><br>" + res._source.date;
+
+					var marker = new google.maps.Marker({
+					    position:{
+						lat:res._source.lat,
+						lng:res._source.lng
+					    },
+					    map: map
+					//icon: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAMAAAC67D+PAAAAA1BMVEVoqy3pkp4VAAAADElEQVQImWNgoCcAAABuAAEdQFfVAAAAAElFTkSuQmCC"
+					 });
+					var infowindow = new google.maps.InfoWindow();
+					google.maps.event.addListener(marker, 'click', (function(marker, i) {
+						return function() {
+						    infowindow.setContent(data[i]);
+						    infowindow.open(map, marker);
+						}
+					    })(marker, i));
+                    		}
+
+                   	}
+
+             	}
+
+            
+          }
 
 
         </script>
